@@ -40,13 +40,12 @@ services:
     image: nextcloud
     container_name: nextcloud
     environment:
-      - MYSQL_PASSWORD=secret
       - NEXTCLOUD_ADMIN_USER=admin
       - NEXTCLOUD_ADMIN_PASSWORD=admin
+      - SQLITE_DATABASE=nextcloud.db    
+      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud   
     volumes:
-      - ./nextcloud/owncloud.db:/var/www/html/data/owncloud.db
-      # - nextcloud_data:/var/www/html
-      - ./nextcloud/config/config.php:/var/www/html/config/config.php
+      - nextcloud_data:/var/www/html
     networks:
       iam-net:
         ipv4_address: 172.25.0.20
@@ -59,7 +58,7 @@ services:
     image: kasmweb/debian-bookworm-desktop:1.16.0
     container_name: kasm
     environment:
-    # USER c'est kasmweb_user
+    # USER c'est kasm_user
       - VNC_PW=password
     networks:
       iam-net:
@@ -71,7 +70,7 @@ volumes:
   openldap_data:
   openldap_config:
   keycloak_data:
-  # nextcloud_data:
+  nextcloud_data:
 
 networks:
   iam-net:

@@ -1,9 +1,13 @@
+dn: ou=users,dc=example,dc=org
+objectClass: organizationalUnit
+ou: users
+
 dn: uid=mat,ou=users,dc=example,dc=org
-objectClass: person
+objectClass: inetOrgPerson
 objectClass: organizationalPerson
-objectClass: user
+objectClass: person
+uid: mat
 cn: mat
 sn: mat
-uid: mat
 mail: mat@example.org
 userPassword: mat
