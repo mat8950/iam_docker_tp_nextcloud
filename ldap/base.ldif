@@ -1,0 +1,9 @@
+dn: uid=mat,ou=users,dc=example,dc=org
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: mat
+sn: mat
+uid: mat
+mail: mat@example.org
+userPassword: mat

@@ -1,0 +1,81 @@
+services:
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: openldap
+    environment:
+      - LDAP_ORGANISATION=ExampleOrg
+      - LDAP_DOMAIN=example.org
+      - LDAP_ADMIN_PASSWORD=admin
+    volumes:
+      - ./ldap/base.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/base.ldif
+      - openldap_data:/var/lib/ldap
+      - openldap_config:/etc/ldap/slapd.d
+    command: --copy-service
+    networks:
+      iam-net:
+        ipv4_address: 172.25.0.30
+    ports:
+      - "389:389"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.1
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_IMPORT=/opt/keycloak/data/import/realm-export.json
+    command: ["start-dev", "--import-realm"]
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      iam-net:
+        ipv4_address: 172.25.0.10
+    ports:
+      - "8080:8080"
+    depends_on:
+      - openldap
+
+  nextcloud:
+    image: nextcloud
+    container_name: nextcloud
+    environment:
+      - MYSQL_PASSWORD=secret
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=admin
+    volumes:
+      - ./nextcloud/owncloud.db:/var/www/html/data/owncloud.db
+      # - nextcloud_data:/var/www/html
+      - ./nextcloud/config/config.php:/var/www/html/config/config.php
+    networks:
+      iam-net:
+        ipv4_address: 172.25.0.20
+    ports:
+      - "80:80"
+    depends_on:
+      - keycloak
+
+  kasm:
+    image: kasmweb/debian-bookworm-desktop:1.16.0
+    container_name: kasm
+    environment:
+    # USER c'est kasmweb_user
+      - VNC_PW=password
+    networks:
+      iam-net:
+        ipv4_address: 172.25.0.40
+    ports:
+      - "6901:6901"  # accès via navigateur VNC/noVNC
+
+volumes:
+  openldap_data:
+  openldap_config:
+  keycloak_data:
+  # nextcloud_data:
+
+networks:
+  iam-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
